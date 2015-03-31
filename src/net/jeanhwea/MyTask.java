@@ -16,11 +16,16 @@ public class MyTask {
 	
 	private MyTask		 parent;
 	private List<MyTask> children;
+
+	private List<MyTask> predecessors;
+	private List<MyTask> successors;
 	
 	
 	public MyTask() {
 		parent = null;
 		children = new LinkedList<MyTask>();
+		predecessors = new LinkedList<MyTask>();
+		successors = new LinkedList<MyTask>();
 	}
 
 
@@ -113,6 +118,33 @@ public class MyTask {
 		this.children = children;
 	}
 
+
+	public List<MyTask> getPredecessors() {
+		return predecessors;
+	}
+
+
+	public void setPredecessors(List<MyTask> predecessors) {
+		this.predecessors = predecessors;
+	}
+
+
+	public List<MyTask> getSuccessors() {
+		return successors;
+	}
+
+
+	public void setSuccessors(List<MyTask> successors) {
+		this.successors = successors;
+	}
+
+	/**
+	 * Return true if this task is a leaf task
+	 * @return 
+	 */
+	public boolean isLeafTask() {
+		return this.children.isEmpty();
+	}
 
 	@Override
 	public String toString() {

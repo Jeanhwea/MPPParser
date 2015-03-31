@@ -2,12 +2,8 @@ package net.jeanhwea;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
-
 import net.stixar.graph.BasicDigraph;
 import net.stixar.graph.Edge;
 import net.stixar.graph.Node;
@@ -39,13 +35,14 @@ public class DotFileWriter {
 	private void drawDigraph() throws IOException {
 		indentPrint("digraph G {");
 		indent++;
-		indentPrint("ranksep=0.75; ratio=compress; size= \"27.5,20!\"; compound=true; node[fontsize=54]");
+		indentPrint("ranksep=0.75; ratio=compress; size= \"27.5,20!\"; compound=true");
 		drawTasks();
 		indent--;
 		indentPrint("}");
 	}
 	
 	private void drawTasks() throws IOException {
+		String line;
 		indentPrint("subgraph cluster_tasks {");
 		indent++;
 		indentPrint("label = \"Tasks\";");
@@ -55,11 +52,12 @@ public class DotFileWriter {
 		for (Node task : graph.nodes()) {
 			MyTask my_task;
 			my_task = rder.getTaskByNid(task.nodeId());
-			String line = "T" + task.nodeId() + "[label=\"" + my_task.getName() + "-" + my_task.getDuration() + "\", shape=circle];";
+//			line = String.format("T%d[label=\"%s_%.0f%s\"]", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
+			line = String.format("T%d[label=\"%s_%.0f%s\"]", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
 			indentPrint(line);
 		}
 		for (Edge rela : graph.edges()) {
-			String line = "T"+rela.source().nodeId() + " -> " + "T"+rela.target().nodeId() + ";";
+			line = String.format("T%d -> T%d;", rela.source().nodeId(), rela.target().nodeId());
 			indentPrint(line);
 		}
 		indent--;
@@ -72,6 +70,5 @@ public class DotFileWriter {
 		}
 		wter.write(line);
 		wter.newLine();
-//		wter.flush();
 	}
 }

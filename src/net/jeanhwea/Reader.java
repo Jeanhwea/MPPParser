@@ -111,7 +111,7 @@ public class Reader {
 		for (Task t : project_file.getAllTasks()) {
 			MyTask my_task = new MyTask();
 			BasicNode node = dgraph.genNode();
-			my_task.setNid(node.nodeId());			
+			my_task.setNid(node.nodeId());
 			my_task.setUid(t.getUniqueID());
 			
 			// add map item (k-v)
@@ -147,44 +147,33 @@ public class Reader {
 			v_tasks.add(my_task);
 		}
 		
-		// add edge to graph
-		for (Task t : project_file.getAllTasks()) {
-			List<Relation> successors = t.getSuccessors();
-			if (successors == null)
-				continue;
-			for (Relation rela : successors) {
-				
-				Integer nid_src, nid_des;
-				nid_src = m_uid2nid.get(rela.getSourceTask().getUniqueID());
-				nid_des = m_uid2nid.get(rela.getTargetTask().getUniqueID());
-				if (nid_src == null) {
-					System.err.println("can not map uid=" + rela.getSourceTask().getUniqueID() + " to nid");
-					continue;
-				}
-				if (nid_des == null) {
-					System.err.println("can not map uid=" + rela.getTargetTask().getUniqueID() + " to nid");
-					continue;
-				}
-				
-				BasicNode source, target;
-				source = dgraph.node(nid_src);
-				target = dgraph.node(nid_des);
-				if (source == null) {
-					System.err.println("node no found in dgraph!!!, bad nid=" + nid_src);
-					continue;
-				}
-				if (target == null) {
-					System.err.println("node no found in dgraph!!!, bad nid=" + nid_des);
-					continue;
-				}
-				
-				// add a edge to dgraph
-				dgraph.genEdge(source, target);
-			}
-		}
 		
-		// doing transitivity reduction
-		Transitivity.acyclicReduce(dgraph);
+		// build predecessors and successors
+		for (Task t : project_file.getAllTasks()) {
+
+			MyTask my_task = m_uid2task.get(t.getUniqueID());
+			
+			// add predecessors to my task data structure
+			List<Relation> preds = t.getPredecessors();
+			List<MyTask> my_preds = my_task.getPredecessors();
+			if (preds != null) {
+				for (Relation rela : preds) {
+					MyTask my_pred = m_uid2task.get(rela.getTargetTask().getUniqueID());
+					my_preds.add(my_pred);
+				}
+			}
+			
+			// add successors to my task data structure
+			List<Relation> succs = t.getSuccessors();
+			List<MyTask> my_succs = my_task.getSuccessors();
+			if (succs != null) {
+				for (Relation rela : succs) {
+					MyTask my_succ = m_uid2task.get(rela.getTargetTask().getUniqueID());
+					my_succs.add(my_succ);
+				}
+			}
+			
+		}
 
 		// build tree structure
 		for (Task t : project_file.getAllTasks()) {
@@ -206,18 +195,47 @@ public class Reader {
 			}
 		}
 		
-		// add edge caused by tree structure to dgraph
-		for (Task t : project_file.getAllTasks()) {
-			for (Task p = t.getParentTask(); p != null; p = p.getParentTask()) {
+		addEdgesOnlyLeafTask();
+		removeNoneLeafNodes();
+		
+		return v_tasks;
+	}
+	
+	private void addEdgesOnlyLeafTask() {
+		for (MyTask mt : v_tasks) {
+			
+			// skip none-leaf tasks
+			if (!mt.isLeafTask())
+				continue;
+			
+			// if task is a leaf task
+			for (MyTask p = mt; p != null; p = p.getParent()) {
+				addSuccessorOfTask(mt, p.getSuccessors());
+			}
+			
+			// doing transitivity reduction
+			Transitivity.acyclicReduce(dgraph);
+		}
+	}
+	
+	/**
+	 * Add edges recursively
+	 * 
+	 * @param my_task
+	 * @param successors
+	 */
+	private void addSuccessorOfTask(MyTask my_task, List<MyTask> successors) {
+		for (MyTask succ : successors) {
+			if (succ.isLeafTask()) {
 				Integer nid_src, nid_des;
-				nid_src = m_uid2nid.get(p.getUniqueID());
-				nid_des = m_uid2nid.get(t.getUniqueID());
+				nid_src = m_uid2nid.get(my_task.getUid());
+				nid_des = m_uid2nid.get(succ.getUid());
 				if (nid_src == null) {
-					System.err.println("can not map uid=" + p.getUniqueID() + " to nid");
+					System.err.println("can not map uid=" + succ.getUid() + " to nid");
 					continue;
 				}
 				if (nid_des == null) {
-					System.err.println("can not map uid=" + t.getUniqueID() + " to nid");
+					System.err.println("can not map uid=" + succ.getUid() + " to nid");
 					continue;
 				}
 				
@@ -235,14 +253,89 @@ public class Reader {
 				
 				// add a edge to dgraph
 				dgraph.genEdge(source, target);
-
+			} else {
+				addSuccessorOfTask(my_task, succ.getChildren());
+			}
+		}
+	}
+	
+	private void addEdges() {
+		
+		// add edge caused by predecessors and successors
+		for (MyTask mt : v_tasks) {
+			List<MyTask> successors = mt.getSuccessors();
+			if (successors == null)
+				continue;
+			for (MyTask succ : successors) {
+				
+				Integer nid_src, nid_des;
+				nid_src = m_uid2nid.get(mt.getUid());
+				nid_des = m_uid2nid.get(succ.getUid());
+				if (nid_src == null) {
+					System.err.println("can not map uid=" + succ.getUid() + " to nid");
+					continue;
+				}
+				if (nid_des == null) {
+					System.err.println("can not map uid=" + succ.getUid() + " to nid");
+					continue;
+				}
+				
+				BasicNode source, target;
+				source = dgraph.node(nid_src);
+				target = dgraph.node(nid_des);
+				if (source == null) {
+					System.err.println("node no found in dgraph!!!, bad nid=" + nid_src);
+					continue;
+				}
+				if (target == null) {
+					System.err.println("node no found in dgraph!!!, bad nid=" + nid_des);
+					continue;
+				}
+				
+				// add a edge to dgraph
+				dgraph.genEdge(source, target);
 			}
 		}
 		
 		// doing transitivity reduction
 		Transitivity.acyclicReduce(dgraph);
 		
-		return v_tasks;
+		
+		// add edge caused by tree structure to dgraph
+		for (MyTask mt : v_tasks) {
+			for (MyTask p = mt.getParent(); p != null; p = p.getParent()) {
+				Integer nid_src, nid_des;
+				nid_src = m_uid2nid.get(p.getUid());
+				nid_des = m_uid2nid.get(mt.getUid());
+				if (nid_src == null) {
+					System.err.println("can not map uid=" + p.getUid() + " to nid");
+					continue;
+				}
+				if (nid_des == null) {
+					System.err.println("can not map uid=" + mt.getUid() + " to nid");
+					continue;
+				}
+				
+				BasicNode source, target;
+				source = dgraph.node(nid_src);
+				target = dgraph.node(nid_des);
+				if (source == null) {
+					System.err.println("node no found in dgraph!!!, bad nid=" + nid_src);
+					continue;
+				}
+				if (target == null) {
+					System.err.println("node no found in dgraph!!!, bad nid=" + nid_des);
+					continue;
+				}
+				
+				// add a edge to dgraph
+				dgraph.genEdge(source, target);
+			}
+		}
+		
+		
+		// doing transitivity reduction
+		Transitivity.acyclicReduce(dgraph);
 	}
 	
 	public Vector<MyResource> loadResources() {
@@ -257,6 +350,11 @@ public class Reader {
 		return v_resources;
 	}
 	
+	/**
+	 * Remove zero duration task before load tasks
+	 * 
+	 * @return size to remove
+	 */
 	public int removeZeroDurationTasks() {
 		List<Task> l_tasks_to_remove = new LinkedList<Task>();
 		
@@ -268,28 +366,23 @@ public class Reader {
 		}
 		
 		for (Task t : l_tasks_to_remove) {
-//			project_file.removeTask(t);
 			delTask(t);
 		}
 		
 		return l_tasks_to_remove.size();
 	}
 	
-	public int removeNoneLeafTasks() {
-		List<Task> l_tasks_to_remove = new LinkedList<Task>();
-		
-		for (Task t : project_file.getAllTasks()) {
-			List<Task> cld = t.getChildTasks();
-			if (!cld.isEmpty()) {
-			  l_tasks_to_remove.add(t);
-			}
+	public void removeNoneLeafNodes() {
+		List<Node> nodes_to_remove = new LinkedList<Node>();
+		for (Node node : dgraph.nodes()) {
+			MyTask my_task = m_nid2task.get(node.nodeId());
+			if (!my_task.isLeafTask())
+				nodes_to_remove.add(node);
 		}
 		
-		for (Task t : l_tasks_to_remove) {
-			delTask(t);
+		for (Node node : nodes_to_remove) {
+			dgraph.remove(node);
 		}
-		
-		return l_tasks_to_remove.size();
 	}
 	
 	/**
@@ -378,6 +471,12 @@ public class Reader {
 		for ( Node n: dgraph.nodes()) {
 			System.out.println(n);
 		}
+		System.out.println("dgraph.nodeSize()="+dgraph.nodeSize());
+	}
+	
+	public void printGraphInfo() {
+		System.out.println("dgraph.edgeSize()="+dgraph.edgeSize());
+		System.out.println("dgraph.nodeSize()="+dgraph.nodeSize());
 	}
 	
 	public void printTasks() {
@@ -391,7 +490,6 @@ public class Reader {
 	}
 	
 	public void genDotFile() throws IOException {
-//		dot_writer = new DotFileWriter(dot_filename);
 		dot_writer = new DotFileWriter(dot_filename, this);
 		dot_writer.write(dgraph);
 	}
