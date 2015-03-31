@@ -58,8 +58,8 @@ public class MPPParser {
 
 	public static void main(String[] args) throws MPXJException, IOException, InterruptedException {
 		MPPParser parser = new MPPParser();
-//		parser.parse("mpps/input.mpp");
-		parser.parse("mpps/C-softchoice.mpp");
+		parser.parse("mpps/input.mpp");
+//		parser.parse("mpps/C-softchoice.mpp");
 //		parser.parse("mpps/D-QuoteToOrder.mpp");
 		parser.test();
 	}
