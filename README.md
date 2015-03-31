@@ -1,8 +1,8 @@
 # MPPPaser
-Paser ms project file to extract leaf-task and task dependency
+Paser ms-project file and extract leaf-task and task dependency
 
-### Tools
+## Tools
 Some additional tool to use for this project
 
->	dot-file parse tool,  graphviz
->	MPXJ jar library
+1. dot-file parse tool,  [Graph Visualization Software](http://www.graphviz.org/ "Graphviz")
+2. MPXJ jar library, [MPXJ: Microsoft Project Exchange](https://sourceforge.net/projects/mpxj/ "MPXJ")
