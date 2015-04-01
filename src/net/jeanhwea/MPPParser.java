@@ -30,7 +30,6 @@ public class MPPParser {
 	
 	public void parse(String filename) throws MPXJException {
 		reader.readFile(filename);
-		reader.removeZeroDurationTasks();
 		reader.loadTasks();
 		reader.loadResources();
 		reader.printTasks();
@@ -58,9 +57,9 @@ public class MPPParser {
 
 	public static void main(String[] args) throws MPXJException, IOException, InterruptedException {
 		MPPParser parser = new MPPParser();
-		parser.parse("mpps/input.mpp");
-//		parser.parse("mpps/C-softchoice.mpp");
-//		parser.parse("mpps/D-QuoteToOrder.m
+//		parser.parse("mpps/input.mpp");
+		parser.parse("mpps/C-softchoice.mpp");
+//		parser.parse("mpps/D-QuoteToOrder.mpp");
 //		parser.parse("mpps/software.mpp");
 		parser.test();
 	}

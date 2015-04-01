@@ -107,6 +107,9 @@ public class Reader {
 	
 	public Vector<MyTask> loadTasks() {
 		
+		// remove zero duration before load tasks
+		this.removeZeroDurationTasks();
+		
 		// add node to graph
 		for (Task t : project_file.getAllTasks()) {
 			MyTask my_task = new MyTask();
@@ -196,7 +199,7 @@ public class Reader {
 		}
 		
 		addEdgesOnlyLeafTask();
-//		addEdges();
+//		addAllEdges();
 		
 		return v_tasks;
 	}
@@ -261,7 +264,7 @@ public class Reader {
 	}
 	
 	@SuppressWarnings("unused")
-	private void addEdges() {
+	private void addAllEdges() {
 		
 		// add edge caused by predecessors and successors
 		for (MyTask mt : v_tasks) {
@@ -357,7 +360,7 @@ public class Reader {
 	 * 
 	 * @return size to remove
 	 */
-	public int removeZeroDurationTasks() {
+	private int removeZeroDurationTasks() {
 		List<Task> l_tasks_to_remove = new LinkedList<Task>();
 		
 		for (Task t : project_file.getAllTasks()) {
@@ -374,7 +377,7 @@ public class Reader {
 		return l_tasks_to_remove.size();
 	}
 	
-	public void removeNoneLeafNodes() {
+	private void removeNoneLeafNodes() {
 		List<Node> nodes_to_remove = new LinkedList<Node>();
 		for (Node node : dgraph.nodes()) {
 			MyTask my_task = m_nid2task.get(node.nodeId());

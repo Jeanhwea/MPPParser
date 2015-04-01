@@ -43,7 +43,7 @@ public class DotFileWriter {
 	private void drawDigraph() throws IOException {
 		indentPrint("digraph G {");
 		indent++;
-		indentPrint("ranksep=0.75; ratio=compress; compound=true;");
+		indentPrint("compound=true; rankdir=LR; ratio=compress;");
 		drawResources();
 		drawTasks();
 		indent--;
@@ -54,9 +54,9 @@ public class DotFileWriter {
 		String line;
 		indentPrint("subgraph cluster_tasks {");
 		indent++;
-		indentPrint("label = \"Tasks\";");
-		indentPrint("style = filled;");
-		indentPrint("color = white;");
+		
+		indentPrint("node[color=black, shape=box];");
+		
 		for (Node task : graph.nodes()) {
 			MyTask my_task;
 			my_task = rder.getTaskByNid(task.nodeId());
@@ -64,10 +64,12 @@ public class DotFileWriter {
 			line = String.format("T%d[label=\"T%s_%.0f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
 			indentPrint(line);
 		}
+		
 		for (Edge rela : graph.edges()) {
 			line = String.format("T%d -> T%d;", rela.source().nodeId(), rela.target().nodeId());
 			indentPrint(line);
 		}
+		
 		indent--;
 		indentPrint("}");
 	}
@@ -76,9 +78,9 @@ public class DotFileWriter {
 		String line;
 		indentPrint("subgraph cluser_resources {");
 		indent++;
-		indentPrint("label = \"Resources\";");
-		indentPrint("style = filled;");
-		indentPrint("color = white;");
+		
+		indentPrint("node[shape=folder, color=blue, fontcolor=blue];");
+		
 		Vector<MyResource> resources = rder.getResources();
 		for (MyResource resource : resources) {
 			if (resource.getName() == null)
@@ -88,6 +90,9 @@ public class DotFileWriter {
 			indentPrint(line);
 		}
 		
+		/* construct some like this
+		 * R1 -> R2 -> R3 -> R4 -> R5[style=invis];
+		 */
 		line ="R" + resources.get(1).getUid();
 		for (int i = 2; i < resources.size(); i++) {
 			MyResource resource = resources.get(i);
@@ -95,6 +100,7 @@ public class DotFileWriter {
 		}
 		line += "[style=invis];";
 		indentPrint(line);
+		
 		indent--;
 		indentPrint("}");
 	}
