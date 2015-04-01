@@ -60,7 +60,8 @@ public class MPPParser {
 		MPPParser parser = new MPPParser();
 		parser.parse("mpps/input.mpp");
 //		parser.parse("mpps/C-softchoice.mpp");
-//		parser.parse("mpps/D-QuoteToOrder.mpp");
+//		parser.parse("mpps/D-QuoteToOrder.m
+//		parser.parse("mpps/software.mpp");
 		parser.test();
 	}
 

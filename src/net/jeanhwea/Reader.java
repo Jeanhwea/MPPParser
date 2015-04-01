@@ -196,7 +196,7 @@ public class Reader {
 		}
 		
 		addEdgesOnlyLeafTask();
-		removeNoneLeafNodes();
+//		addEdges();
 		
 		return v_tasks;
 	}
@@ -216,6 +216,7 @@ public class Reader {
 			// doing transitivity reduction
 			Transitivity.acyclicReduce(dgraph);
 		}
+		removeNoneLeafNodes();
 	}
 	
 	/**
@@ -259,6 +260,7 @@ public class Reader {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void addEdges() {
 		
 		// add edge caused by predecessors and successors

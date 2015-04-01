@@ -2,8 +2,9 @@ package net.jeanhwea;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Vector;
 
 import net.stixar.graph.BasicDigraph;
@@ -14,24 +15,29 @@ public class DotFileWriter {
 	
 	protected int indent = 0;
 	
+	private String filename;
 	private File file;
 	private BufferedWriter wter;
 	private BasicDigraph graph;
 	private Reader rder;
-	private FileWriter file_writer;
+	private FileOutputStream file_output_stream;
+	private OutputStreamWriter file_writer;
 	
 	DotFileWriter(String filename, Reader reader) throws IOException {
 		rder = reader;
-		file = new File(filename);
-		file_writer = new FileWriter(file.getAbsolutePath());
-		wter = new BufferedWriter(file_writer);
+		this.filename = filename;
 	}
 	
 
 	void write(BasicDigraph dgraph) throws IOException {
+		file = new File(filename);
+		file_output_stream = new FileOutputStream(file.getAbsoluteFile());
+		file_writer = new OutputStreamWriter(file_output_stream, "UTF-8");
+		wter = new BufferedWriter(file_writer);
 		graph = dgraph;
 		drawDigraph();
 		wter.close();
+		file_output_stream.close();
 	}
 	
 	private void drawDigraph() throws IOException {
@@ -54,8 +60,8 @@ public class DotFileWriter {
 		for (Node task : graph.nodes()) {
 			MyTask my_task;
 			my_task = rder.getTaskByNid(task.nodeId());
-			line = String.format("T%d[label=\"%s_%.0f%s\"];", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
-//			line = String.format("T%d[label=\"%s_%.0f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
+//			line = String.format("T%d[label=\"%s_%.0f%s\"];", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
+			line = String.format("T%d[label=\"T%s_%.0f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
 			indentPrint(line);
 		}
 		for (Edge rela : graph.edges()) {
@@ -77,12 +83,13 @@ public class DotFileWriter {
 		for (MyResource resource : resources) {
 			if (resource.getName() == null)
 				continue;
-			line = String.format("R%d[label=\"%s\"];", resource.getUid(), resource.getName());
+//			line = String.format("R%d[label=\"%s\"];", resource.getUid(), resource.getName());
+			line = String.format("R%d[label=\"R%s\"];", resource.getUid(), resource.getUid());
 			indentPrint(line);
 		}
 		
-		line ="R" + resources.get(0).getUid();
-		for (int i = 1; i < resources.size(); i++) {
+		line ="R" + resources.get(1).getUid();
+		for (int i = 2; i < resources.size(); i++) {
 			MyResource resource = resources.get(i);
 			line += " -> " + "R" + resource.getUid();
 		}
