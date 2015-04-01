@@ -46,7 +46,6 @@ public class Reader {
 		dgraph = new BasicDigraph();
 		v_tasks = new Vector<MyTask>();
 		v_resources = new Vector<MyResource>();
-		m_uid2nid = new HashMap<Integer, Integer>();
 		m_uid2task = new HashMap<Integer, MyTask>();
 		m_nid2task = new HashMap<Integer, MyTask>();
 	}
@@ -113,14 +112,11 @@ public class Reader {
 		// add node to graph
 		for (Task t : project_file.getAllTasks()) {
 			MyTask my_task = new MyTask();
-			BasicNode node = dgraph.genNode();
-			my_task.setNid(node.nodeId());
 			my_task.setUid(t.getUniqueID());
 			
 			// add map item (k-v)
-			m_uid2nid.put(my_task.getUid(), my_task.getNid());
 			m_uid2task.put(my_task.getUid(), my_task);
-			m_nid2task.put(my_task.getNid(), my_task);
+//			m_nid2task.put(my_task.getNid(), my_task);
 			
 
 			my_task.setName(t.getName());
@@ -198,13 +194,45 @@ public class Reader {
 			}
 		}
 		
-		addEdgesOnlyLeafTask();
-//		addAllEdges();
-		
 		return v_tasks;
 	}
 	
-	private void addEdgesOnlyLeafTask() {
+	public void buildGraphWithLeafTasks() {
+		addNodesOnlyLeafTasks();
+		addEdgesOnlyLeafTasks();
+	}
+	
+	public void buildGraphWithAllTasks() {
+		this.addNodesWithAllTasks();
+		this.addEdgesWithAllTasks();
+	}
+	
+	private void addNodesOnlyLeafTasks() {
+		for (MyTask mt : v_tasks) {
+			// skip none-leaf tasks
+			if (!mt.isLeafTask())
+				continue;
+
+			BasicNode node = dgraph.genNode();
+			mt.setNid(node.nodeId());
+			
+			// add map item (k-v)
+			m_nid2task.put(mt.getNid(), mt);
+		}
+	}
+	
+	private void addNodesWithAllTasks() {
+		for (MyTask mt : v_tasks) {
+
+			BasicNode node = dgraph.genNode();
+			mt.setNid(node.nodeId());
+			
+			// add map item (k-v)
+			m_nid2task.put(mt.getNid(), mt);
+		}
+	}
+	
+	private void addEdgesOnlyLeafTasks() {
 		for (MyTask mt : v_tasks) {
 			
 			// skip none-leaf tasks
@@ -219,7 +247,7 @@ public class Reader {
 			// doing transitivity reduction
 			Transitivity.acyclicReduce(dgraph);
 		}
-		removeNoneLeafNodes();
+//		removeNoneLeafNodes();
 	}
 	
 	/**
@@ -232,8 +260,8 @@ public class Reader {
 		for (MyTask succ : successors) {
 			if (succ.isLeafTask()) {
 				Integer nid_src, nid_des;
-				nid_src = m_uid2nid.get(my_task.getUid());
-				nid_des = m_uid2nid.get(succ.getUid());
+				nid_src = m_uid2task.get(my_task.getUid()).getNid();
+				nid_des = m_uid2task.get(succ.getUid()).getNid();
 				if (nid_src == null) {
 					System.err.println("can not map uid=" + succ.getUid() + " to nid");
 					continue;
@@ -264,7 +292,7 @@ public class Reader {
 	}
 	
 	@SuppressWarnings("unused")
-	private void addAllEdges() {
+	private void addEdgesWithAllTasks() {
 		
 		// add edge caused by predecessors and successors
 		for (MyTask mt : v_tasks) {
@@ -274,8 +302,8 @@ public class Reader {
 			for (MyTask succ : successors) {
 				
 				Integer nid_src, nid_des;
-				nid_src = m_uid2nid.get(mt.getUid());
-				nid_des = m_uid2nid.get(succ.getUid());
+				nid_src = m_uid2task.get(mt.getUid()).getNid();
+				nid_des = m_uid2task.get(succ.getUid()).getNid();
 				if (nid_src == null) {
 					System.err.println("can not map uid=" + succ.getUid() + " to nid");
 					continue;
@@ -310,8 +338,8 @@ public class Reader {
 		for (MyTask mt : v_tasks) {
 			for (MyTask p = mt.getParent(); p != null; p = p.getParent()) {
 				Integer nid_src, nid_des;
-				nid_src = m_uid2nid.get(p.getUid());
-				nid_des = m_uid2nid.get(mt.getUid());
+				nid_src = m_uid2task.get(p.getUid()).getNid();
+				nid_des = m_uid2task.get(mt.getUid()).getNid();
 				if (nid_src == null) {
 					System.err.println("can not map uid=" + p.getUid() + " to nid");
 					continue;
@@ -375,19 +403,6 @@ public class Reader {
 		}
 		
 		return l_tasks_to_remove.size();
-	}
-	
-	private void removeNoneLeafNodes() {
-		List<Node> nodes_to_remove = new LinkedList<Node>();
-		for (Node node : dgraph.nodes()) {
-			MyTask my_task = m_nid2task.get(node.nodeId());
-			if (!my_task.isLeafTask())
-				nodes_to_remove.add(node);
-		}
-		
-		for (Node node : nodes_to_remove) {
-			dgraph.remove(node);
-		}
 	}
 	
 	/**
@@ -495,6 +510,8 @@ public class Reader {
 	}
 	
 	public void genDotFile() throws IOException {
+//		this.buildGraphWithAllTasks();
+		this.buildGraphWithLeafTasks();
 		dot_writer = new DotFileWriter(dot_filename, this);
 		dot_writer.write(dgraph);
 	}
