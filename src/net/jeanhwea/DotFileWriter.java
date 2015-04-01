@@ -55,7 +55,7 @@ public class DotFileWriter {
 		indentPrint("subgraph cluster_tasks {");
 		indent++;
 		
-		indentPrint("node[color=black, shape=box];");
+		indentPrint("node[shape=box, color=black];");
 		
 		for (Node task : graph.nodes()) {
 			MyTask my_task;

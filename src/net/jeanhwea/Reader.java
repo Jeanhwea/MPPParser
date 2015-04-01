@@ -30,8 +30,6 @@ public class Reader {
 	
 	private String dot_filename;
 	
-	// task uid to node id
-	private Map<Integer, Integer> m_uid2nid;
 	// task uid to MyTask reference
 	private Map<Integer, MyTask>  m_uid2task;
 	// task nid to MyTask reference
@@ -99,7 +97,7 @@ public class Reader {
 	}
 
 	public void readFile(String filename) throws MPXJException {
-		String[] path_list = filename.split("/");
+		String[] path_list = filename.split("\\\\");
 		dot_filename = path_list[path_list.length-1].split("\\.")[0] + ".dot";
 		project_file = mppreader.read(filename);
 	}
@@ -290,8 +288,8 @@ public class Reader {
 			}
 		}
 	}
-	
-	@SuppressWarnings("unused")
+
+
 	private void addEdgesWithAllTasks() {
 		
 		// add edge caused by predecessors and successors
