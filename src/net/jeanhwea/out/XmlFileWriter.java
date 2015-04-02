@@ -15,6 +15,7 @@ import net.jeanhwea.ds.MyResource;
 import net.jeanhwea.ds.MyTask;
 import net.jeanhwea.in.Reader;
 import net.stixar.graph.Edge;
+import net.stixar.graph.Node;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,7 +71,8 @@ public class XmlFileWriter {
 		
 		Element tasks = doc.createElement("Tasks");
 		root.appendChild(tasks);
-		for (MyTask mt : rder.getTasks()) {
+		for (Node node : rder.getDgraph().nodes()) {
+			MyTask mt = rder.getTaskByNid(node.nodeId());
 			Element task = doc.createElement("Task");
 			task.setTextContent(mt.getName());
 			task.setAttribute("uid", String.valueOf(mt.getUid()));
@@ -81,10 +83,10 @@ public class XmlFileWriter {
 		
 		Element dependencies = doc.createElement("Dependencies");
 		root.appendChild(dependencies);
-		for (Edge dep : rder.getDgraph().edges()) {
+		for (Edge edge : rder.getDgraph().edges()) {
 			int nid_src, nid_des;
-			nid_src = dep.source().nodeId();
-			nid_des = dep.target().nodeId();
+			nid_src = edge.source().nodeId();
+			nid_des = edge.target().nodeId();
 			
 			MyTask mt_src, mt_des;
 			mt_src = rder.getTaskByNid(nid_src);
