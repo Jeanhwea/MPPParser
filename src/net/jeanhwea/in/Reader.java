@@ -35,6 +35,8 @@ public class Reader {
 	private Vector<MyTask>      v_tasks;
 	private Vector<MyResource>  v_resources;
 
+	private String file_prefix;
+	private String mpp_filename;
 	private String dot_filename;
 	private String xml_filename;
 	
@@ -97,26 +99,37 @@ public class Reader {
 		this.v_resources = v_resources;
 	}
 
-	public String getDot_filename() {
+	public String getFilePrefix() {
+		return file_prefix;
+	}
+
+	public void setFilePrefix(String file_prefix) {
+		this.file_prefix = file_prefix;
+	}
+
+	public String getDotFilename() {
 		return dot_filename;
 	}
 
-	public void setDot_filename(String dot_filename) {
+	public void setDotFilename(String dot_filename) {
 		this.dot_filename = dot_filename;
 	}
 
-	public String getXml_filename() {
+	public String getXmlFilename() {
 		return xml_filename;
 	}
 
-	public void setXml_filename(String xml_filename) {
+	public void setXmlFilename(String xml_filename) {
 		this.xml_filename = xml_filename;
 	}
 
 	public void readFile(String filename) throws MPXJException {
 		String[] path_list = filename.split("\\\\");
-		dot_filename = path_list[path_list.length-1].split("\\.")[0] + ".dot";
-		xml_filename = path_list[path_list.length-1].split("\\.")[0] + ".xml";
+		mpp_filename = path_list[path_list.length-1];
+		int endIndex = mpp_filename.lastIndexOf('.');
+		file_prefix = mpp_filename.substring(0, endIndex);
+		dot_filename = file_prefix + ".dot";
+		xml_filename = file_prefix + ".xml";
 		project_file = mppreader.read(filename);
 	}
 	
@@ -132,7 +145,6 @@ public class Reader {
 			
 			// add map item (k-v)
 			m_uid2task.put(my_task.getUid(), my_task);
-//			m_nid2task.put(my_task.getNid(), my_task);
 			
 
 			my_task.setName(t.getName());
@@ -213,14 +225,20 @@ public class Reader {
 		return v_tasks;
 	}
 	
+	/**
+	 * This method add only leaf tasks into dgraph
+	 */
 	public void buildGraphWithLeafTasks() {
 		addNodesOnlyLeafTasks();
 		addEdgesOnlyLeafTasks();
 	}
 	
+	/**
+	 * This method add all tasks into dgraph, though most none-leaf tasks is not a real task
+	 */
 	public void buildGraphWithAllTasks() {
-		this.addNodesWithAllTasks();
-		this.addEdgesWithAllTasks();
+		addNodesWithAllTasks();
+		addEdgesWithAllTasks();
 	}
 	
 	private void addNodesOnlyLeafTasks() {
@@ -396,7 +414,20 @@ public class Reader {
 			} else {
 				my_resource.setName("NA");
 			}
+			Number cost = r.getCost();
+			if (cost != null) {
+				my_resource.setCost(cost.longValue());
+			} else {
+				my_resource.setCost(0);
+			}
+			Number max_unit = r.getMaxUnits();
+			if (max_unit != null) {
+				my_resource.setMaxUnit(max_unit.longValue());
+			} else {
+				my_resource.setMaxUnit(0);
+			}
 			my_resource.setUid(r.getUniqueID());
+
 			v_resources.add(my_resource);
 		}
 		

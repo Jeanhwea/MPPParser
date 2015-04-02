@@ -3,6 +3,8 @@ package net.jeanhwea.ds;
 public class MyResource {
 	private String 	name;
 	private int		uid;
+	private long	cost;
+	private long	max_unit;
 	
 	public MyResource() {
 	}
@@ -21,6 +23,22 @@ public class MyResource {
 
 	public void setUid(int uid) {
 		this.uid = uid;
+	}
+
+	public long getCost() {
+		return cost;
+	}
+
+	public void setCost(long cost) {
+		this.cost = cost;
+	}
+
+	public long getMaxUnit() {
+		return max_unit;
+	}
+
+	public void setMaxUnit(long max_unit) {
+		this.max_unit = max_unit;
 	}
 
 	@Override

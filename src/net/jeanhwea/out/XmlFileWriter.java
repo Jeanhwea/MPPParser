@@ -44,7 +44,7 @@ public class XmlFileWriter {
 		trans = trans_factory.newTransformer();
 		// pretty print
 		trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		trans.setOutputProperty(OutputKeys.INDENT, "yes");
+//		trans.setOutputProperty(OutputKeys.INDENT, "yes");
 		
 		rder = reader;
 		this.filename = filename;
@@ -65,6 +65,8 @@ public class XmlFileWriter {
 		for (MyResource mr : rder.getResources()) {
 			Element resource = doc.createElement("Resource");
 			resource.setAttribute("uid", String.valueOf(mr.getUid()));
+			resource.setAttribute("cost", String.valueOf(mr.getCost()));
+			resource.setAttribute("max_unit", String.valueOf(mr.getMaxUnit()));
 			resource.setTextContent(mr.getName());
 			resources.appendChild(resource);
 		}

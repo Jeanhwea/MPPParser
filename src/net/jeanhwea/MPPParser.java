@@ -6,17 +6,14 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import net.jeanhwea.in.Reader;
-import net.jeanhwea.out.XmlFileWriter;
 import net.sf.mpxj.MPXJException;
 
 public class MPPParser {
 	
 	private Reader reader;
-	XmlFileWriter xml_writer;
 
 	MPPParser() {
 		reader = new Reader();
@@ -42,23 +39,23 @@ public class MPPParser {
 		reader.readFile(filename);
 		reader.loadTasks();
 		reader.loadResources();
-//		reader.buildGraphWithAllTasks();
-		reader.buildGraphWithLeafTasks();
 //		reader.printTasks();
 //		reader.printResources();
+//		reader.buildGraphWithAllTasks();
+		reader.buildGraphWithLeafTasks();
+//		reader.printNodes();
+//		reader.printEdges();
+		reader.printGraphInfo();
 	}
 	
 	public void testDotFile() throws IOException, InterruptedException {
 		reader.genDotFile();
-//		reader.printNodes();
-//		reader.printEdges();
-		reader.printGraphInfo();
 		
 		String cmd, input, output;
-		input = reader.getDot_filename();
-		output = reader.getDot_filename().split("\\.")[0] + ".pdf";
+		input = reader.getDotFilename();
+		output = reader.getFilePrefix() + ".pdf";
 		
-		
+		// do more removing file work and call graphviz to generate PDF file
 		cmd = String.format("dot -Tpdf %s -o %s", input, output);
 		executeSync(cmd);
 		cmd = String.format("cmd /c move %s d:\\tmp", input);
@@ -73,8 +70,9 @@ public class MPPParser {
 	public void testXmlFile() throws ParserConfigurationException, TransformerException {
 		reader.genXmlFile();
 		
+		// remove file to temporary directory
 		String cmd, input;
-		input = reader.getXml_filename();
+		input = reader.getXmlFilename();
 		cmd = String.format("cmd /c move %s d:\\tmp", input);
 		executeSync(cmd);
 	}
@@ -82,6 +80,7 @@ public class MPPParser {
 	public static void main(String[] args) throws MPXJException, IOException, InterruptedException, ParserConfigurationException, TransformerException {
 		MPPParser parser = new MPPParser();
 		JFileChooser chooser = new JFileChooser("mpps");
+//		JFileChooser chooser = new JFileChooser(".");
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Microsoft Project File (*.mpp)", "mpp");
 		chooser.setFileFilter(filter);
 		
