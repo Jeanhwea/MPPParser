@@ -5,12 +5,18 @@ import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import net.jeanhwea.in.Reader;
+import net.jeanhwea.out.XmlFileWriter;
 import net.sf.mpxj.MPXJException;
 
 public class MPPParser {
 	
 	private Reader reader;
+	XmlFileWriter xml_writer;
 
 	MPPParser() {
 		reader = new Reader();
@@ -39,7 +45,9 @@ public class MPPParser {
 		reader.printTasks();
 	}
 	
-	public void test() throws IOException, InterruptedException {
+	public void testDotFile() throws IOException, InterruptedException {
+//		reader.buildGraphWithAllTasks();
+		reader.buildGraphWithLeafTasks();
 		reader.genDotFile();
 //		reader.printNodes();
 //		reader.printEdges();
@@ -60,8 +68,14 @@ public class MPPParser {
 		cmd = String.format("cmd /c start d:\\tmp\\%s", path_list[path_list.length-1]);
 		executeSync(cmd);
 	}
+	
+	public void testXmlFile() throws ParserConfigurationException, TransformerException {
+		xml_writer = new XmlFileWriter();
+		xml_writer.buildXML();
+		xml_writer.write();
+	}
 
-	public static void main(String[] args) throws MPXJException, IOException, InterruptedException {
+	public static void main(String[] args) throws MPXJException, IOException, InterruptedException, ParserConfigurationException, TransformerException {
 		MPPParser parser = new MPPParser();
 		JFileChooser chooser = new JFileChooser("mpps");
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Microsoft Project File (*.mpp)", "mpp");
@@ -73,9 +87,10 @@ public class MPPParser {
 			String full_filename = chooser.getSelectedFile().getAbsolutePath();
 			System.out.println("Try to parse " + full_filename);
 			parser.parse(full_filename);
-			parser.test();
+			parser.testDotFile();
 		} else {
 			System.err.println("Ha, ha, You canceled!!!");
+			parser.testXmlFile();
 		}
 	}
 

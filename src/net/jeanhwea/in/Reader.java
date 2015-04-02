@@ -1,4 +1,4 @@
-package net.jeanhwea;
+package net.jeanhwea.in;
 
 
 import java.io.IOException;
@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import net.jeanhwea.ds.MyResource;
+import net.jeanhwea.ds.MyTask;
+import net.jeanhwea.out.DotFileWriter;
 import net.sf.mpxj.Duration;
 import net.sf.mpxj.MPXJException;
 import net.sf.mpxj.ProjectFile;
@@ -493,8 +496,8 @@ public class Reader {
 	}
 	
 	public void printGraphInfo() {
-		System.out.println("dgraph.edgeSize()="+dgraph.edgeSize());
 		System.out.println("dgraph.nodeSize()="+dgraph.nodeSize());
+		System.out.println("dgraph.edgeSize()="+dgraph.edgeSize());
 	}
 	
 	public void printTasks() {
@@ -508,8 +511,6 @@ public class Reader {
 	}
 	
 	public void genDotFile() throws IOException {
-//		this.buildGraphWithAllTasks();
-		this.buildGraphWithLeafTasks();
 		dot_writer = new DotFileWriter(dot_filename, this);
 		dot_writer.write(dgraph);
 	}

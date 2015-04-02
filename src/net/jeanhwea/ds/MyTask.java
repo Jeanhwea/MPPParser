@@ -1,4 +1,4 @@
-package net.jeanhwea;
+package net.jeanhwea.ds;
 
 import java.util.LinkedList;
 import java.util.List;

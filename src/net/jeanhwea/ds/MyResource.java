@@ -1,4 +1,4 @@
-package net.jeanhwea;
+package net.jeanhwea.ds;
 
 public class MyResource {
 	private String 	name;
