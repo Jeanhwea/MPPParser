@@ -391,7 +391,11 @@ public class Reader {
 		
 		for (Resource r : project_file.getAllResources()) {
 			MyResource my_resource = new MyResource();
-			my_resource.setName(r.getName());
+			if (r.getName() != null) {
+				my_resource.setName(r.getName());
+			} else {
+				my_resource.setName("NA");
+			}
 			my_resource.setUid(r.getUniqueID());
 			v_resources.add(my_resource);
 		}

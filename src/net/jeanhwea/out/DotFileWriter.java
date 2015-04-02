@@ -86,10 +86,8 @@ public class DotFileWriter {
 		
 		Vector<MyResource> resources = rder.getResources();
 		for (MyResource resource : resources) {
-			if (resource.getName() == null)
-				continue;
-//			line = String.format("R%d[label=\"%s\"];", resource.getUid(), resource.getName());
-			line = String.format("R%d[label=\"R%s\"];", resource.getUid(), resource.getUid());
+			line = String.format("R%d[label=\"%s\"];", resource.getUid(), resource.getName());
+//			line = String.format("R%d[label=\"R%s\"];", resource.getUid(), resource.getUid());
 			indentPrint(line);
 		}
 		
