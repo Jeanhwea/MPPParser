@@ -22,6 +22,10 @@ public class MyResource {
 	public void setUid(int uid) {
 		this.uid = uid;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "MyResource [name=" + name + ", uid=" + uid + "]";
+	}
 	
 }

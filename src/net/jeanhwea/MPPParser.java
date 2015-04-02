@@ -42,7 +42,8 @@ public class MPPParser {
 		reader.readFile(filename);
 		reader.loadTasks();
 		reader.loadResources();
-		reader.printTasks();
+//		reader.printTasks();
+//		reader.printResources();
 	}
 	
 	public void testDotFile() throws IOException, InterruptedException {
@@ -70,9 +71,13 @@ public class MPPParser {
 	}
 	
 	public void testXmlFile() throws ParserConfigurationException, TransformerException {
-		xml_writer = new XmlFileWriter();
-		xml_writer.buildXML();
-		xml_writer.write();
+		reader.buildGraphWithLeafTasks();
+		reader.genXmlFile();
+		
+		String cmd, input;
+		input = reader.getXml_filename();
+		cmd = String.format("cmd /c move %s d:\\tmp", input);
+		executeSync(cmd);
 	}
 
 	public static void main(String[] args) throws MPXJException, IOException, InterruptedException, ParserConfigurationException, TransformerException {
@@ -88,9 +93,9 @@ public class MPPParser {
 			System.out.println("Try to parse " + full_filename);
 			parser.parse(full_filename);
 			parser.testDotFile();
+			parser.testXmlFile();
 		} else {
 			System.err.println("Ha, ha, You canceled!!!");
-			parser.testXmlFile();
 		}
 	}
 

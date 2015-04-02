@@ -8,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 import net.jeanhwea.ds.MyResource;
 import net.jeanhwea.ds.MyTask;
 import net.jeanhwea.out.DotFileWriter;
+import net.jeanhwea.out.XmlFileWriter;
 import net.sf.mpxj.Duration;
 import net.sf.mpxj.MPXJException;
 import net.sf.mpxj.ProjectFile;
@@ -30,8 +34,9 @@ public class Reader {
 	private BasicDigraph        dgraph;
 	private Vector<MyTask>      v_tasks;
 	private Vector<MyResource>  v_resources;
-	
+
 	private String dot_filename;
+	private String xml_filename;
 	
 	// task uid to MyTask reference
 	private Map<Integer, MyTask>  m_uid2task;
@@ -40,6 +45,7 @@ public class Reader {
 	
 	
 	private DotFileWriter dot_writer;
+	private XmlFileWriter xml_writer;
 	
 	public Reader() {
 		project_file = new ProjectFile();
@@ -99,9 +105,18 @@ public class Reader {
 		this.dot_filename = dot_filename;
 	}
 
+	public String getXml_filename() {
+		return xml_filename;
+	}
+
+	public void setXml_filename(String xml_filename) {
+		this.xml_filename = xml_filename;
+	}
+
 	public void readFile(String filename) throws MPXJException {
 		String[] path_list = filename.split("\\\\");
 		dot_filename = path_list[path_list.length-1].split("\\.")[0] + ".dot";
+		xml_filename = path_list[path_list.length-1].split("\\.")[0] + ".xml";
 		project_file = mppreader.read(filename);
 	}
 	
@@ -506,13 +521,24 @@ public class Reader {
 		}
 	}
 	
+	public void printResources() {
+		for (MyResource r : v_resources) {
+			System.out.println(r);
+		}
+	}
+	
 	public MyTask getTaskByNid(int nid) {
 		return m_nid2task.get(nid);
 	}
 	
 	public void genDotFile() throws IOException {
 		dot_writer = new DotFileWriter(dot_filename, this);
-		dot_writer.write(dgraph);
+		dot_writer.write();
 	}
 	
+	public void genXmlFile() throws TransformerException, ParserConfigurationException {
+		xml_writer = new XmlFileWriter(xml_filename, this);
+		xml_writer.buildXML();
+		xml_writer.write();
+	}
 }

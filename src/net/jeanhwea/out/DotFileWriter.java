@@ -28,16 +28,16 @@ public class DotFileWriter {
 	
 	public DotFileWriter(String filename, Reader reader) throws IOException {
 		rder = reader;
+		graph = rder.getDgraph();
 		this.filename = filename;
 	}
 	
 
-	public void write(BasicDigraph dgraph) throws IOException {
+	public void write() throws IOException {
 		file = new File(filename);
 		file_output_stream = new FileOutputStream(file.getAbsoluteFile());
 		file_writer = new OutputStreamWriter(file_output_stream, "UTF-8");
 		wter = new BufferedWriter(file_writer);
-		graph = dgraph;
 		drawDigraph();
 		wter.close();
 		file_output_stream.close();
@@ -63,8 +63,8 @@ public class DotFileWriter {
 		for (Node task : graph.nodes()) {
 			MyTask my_task;
 			my_task = rder.getTaskByNid(task.nodeId());
-//			line = String.format("T%d[label=\"%s_%.0f%s\"];", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
-			line = String.format("T%d[label=\"T%s_%.0f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
+//			line = String.format("T%d[label=\"%s_%.1f%s\"];", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
+			line = String.format("T%d[label=\"T%s_%.1f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
 			indentPrint(line);
 		}
 		
