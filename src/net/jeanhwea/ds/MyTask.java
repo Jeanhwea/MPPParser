@@ -1,7 +1,9 @@
 package net.jeanhwea.ds;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class MyTask {
 
@@ -13,6 +15,7 @@ public class MyTask {
 	private String      unit;   // unit of duration
 	private int         level;  // out line level
 	private String      outline;
+	private Set<Integer> resource;
 	
 	private MyTask		 parent;
 	private List<MyTask> children;
@@ -22,6 +25,7 @@ public class MyTask {
 	
 	
 	public MyTask() {
+		resource = new HashSet<Integer>();
 		parent = null;
 		children = new LinkedList<MyTask>();
 		predecessors = new LinkedList<MyTask>();
@@ -96,6 +100,16 @@ public class MyTask {
 
 	public void setOutline(String outline) {
 		this.outline = outline;
+	}
+
+
+	public Set<Integer> getResource() {
+		return resource;
+	}
+
+
+	public void setResource(Set<Integer> resource) {
+		this.resource = resource;
 	}
 
 

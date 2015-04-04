@@ -1,6 +1,5 @@
 package net.jeanhwea;
 
-import java.awt.Component;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -16,21 +15,25 @@ import net.sf.mpxj.MPXJException;
 public class MPPParser {
 	
 	private Reader reader;
-	private String tmp_dir = "./tmp/";
+	private String tmp_dir = "tmp" + File.separatorChar;
 
 	MPPParser() {
 		reader = new Reader();
 	}
 	
 	public boolean renameFile(String src, String des) {
-		boolean ret;
+		boolean ret = false;
 		File src_file = new File(src);
 		File des_file = new File(des);
 		
 		if (src_file.exists()) {
-			ret = src_file.renameTo(des_file);
-		} else {
-			ret = false;
+			if (des_file.exists()) {
+				if (des_file.delete()) {
+					ret = src_file.renameTo(des_file);
+				}
+			} else {
+				ret = src_file.renameTo(des_file);
+			}
 		}
 		
 		return ret;
@@ -63,6 +66,7 @@ public class MPPParser {
 		reader.readFile(filename);
 		reader.loadTasks();
 		reader.loadResources();
+		reader.loadAssignments();
 //		reader.printTasks();
 //		reader.printResources();
 //		reader.buildGraphWithAllTasks();

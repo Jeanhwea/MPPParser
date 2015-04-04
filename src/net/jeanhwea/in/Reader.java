@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,6 +21,7 @@ import net.sf.mpxj.MPXJException;
 import net.sf.mpxj.ProjectFile;
 import net.sf.mpxj.Relation;
 import net.sf.mpxj.Resource;
+import net.sf.mpxj.ResourceAssignment;
 import net.sf.mpxj.Task;
 import net.sf.mpxj.mpp.MPPReader;
 import net.stixar.graph.BasicDigraph;
@@ -40,11 +42,12 @@ public class Reader {
 	private String dot_filename;
 	private String xml_filename;
 	
-	// task uid to MyTask reference
+	// map task uid to MyTask reference
 	private Map<Integer, MyTask>  m_uid2task;
-	// task nid to MyTask reference
+	// map task nid to MyTask reference
 	private Map<Integer, MyTask> m_nid2task;
-	
+	// map resource uid to MyResource reference
+	private Map<Integer, MyResource> m_uid2resource;
 	
 	private DotFileWriter dot_writer;
 	private XmlFileWriter xml_writer;
@@ -57,6 +60,7 @@ public class Reader {
 		v_resources = new Vector<MyResource>();
 		m_uid2task = new HashMap<Integer, MyTask>();
 		m_nid2task = new HashMap<Integer, MyTask>();
+		m_uid2resource = new HashMap<Integer, MyResource>();
 	}
 	
 	public ProjectFile getProjectFile() {
@@ -143,10 +147,6 @@ public class Reader {
 			MyTask my_task = new MyTask();
 			my_task.setUid(t.getUniqueID());
 			
-			// add map item (k-v)
-			m_uid2task.put(my_task.getUid(), my_task);
-			
-
 			my_task.setName(t.getName());
 			Duration work = t.getWork();
 			if (work != null) {
@@ -170,7 +170,9 @@ public class Reader {
 			} else {
 				my_task.setOutline("0");
 			}
-			
+
+			// add map item (k-v)
+			m_uid2task.put(my_task.getUid(), my_task);
 			v_tasks.add(my_task);
 		}
 		
@@ -281,7 +283,7 @@ public class Reader {
 			// doing transitivity reduction
 			Transitivity.acyclicReduce(dgraph);
 		}
-//		removeNoneLeafNodes();
+
 	}
 	
 	/**
@@ -409,6 +411,10 @@ public class Reader {
 		
 		for (Resource r : project_file.getAllResources()) {
 			MyResource my_resource = new MyResource();
+			
+			my_resource.setUid(r.getUniqueID());
+			
+			
 			if (r.getName() != null) {
 				my_resource.setName(r.getName());
 			} else {
@@ -426,14 +432,28 @@ public class Reader {
 			} else {
 				my_resource.setMaxUnit(0);
 			}
-			my_resource.setUid(r.getUniqueID());
 
+			m_uid2resource.put(my_resource.getUid(), my_resource);
 			v_resources.add(my_resource);
 		}
 		
 		return v_resources;
 	}
 	
+	public void loadAssignments() {
+		for (ResourceAssignment assign : project_file.getAllResourceAssignments()) {
+			Integer res_uid = assign.getResourceUniqueID();
+			MyResource resource = m_uid2resource.get(res_uid);
+			if (resource == null)
+				continue;
+			Integer task_uid = assign.getTaskUniqueID();
+			MyTask my_task = m_uid2task.get(task_uid);
+			if (my_task != null) {
+				Set<Integer> resources_needed = my_task.getResource();
+				resources_needed.add(res_uid);
+			}
+		}
+	}
 	/**
 	 * Remove zero duration task before load tasks
 	 * 

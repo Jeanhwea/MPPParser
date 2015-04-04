@@ -62,29 +62,40 @@ public class XmlFileWriter {
 		
 		Element resources = doc.createElement("Resources");
 		root.appendChild(resources);
+		resources.setAttribute("size", String.valueOf(rder.getResources().size()));
 		for (MyResource mr : rder.getResources()) {
 			Element resource = doc.createElement("Resource");
+			resources.appendChild(resource);
 			resource.setAttribute("uid", String.valueOf(mr.getUid()));
 			resource.setAttribute("cost", String.valueOf(mr.getCost()));
 			resource.setAttribute("max_unit", String.valueOf(mr.getMaxUnit()));
-			resource.setTextContent(mr.getName());
-			resources.appendChild(resource);
+			resource.setAttribute("name", mr.getName());
 		}
 		
 		Element tasks = doc.createElement("Tasks");
 		root.appendChild(tasks);
+		tasks.setAttribute("size", String.valueOf(rder.getDgraph().nodeSize()));
 		for (Node node : rder.getDgraph().nodes()) {
 			MyTask mt = rder.getTaskByNid(node.nodeId());
 			Element task = doc.createElement("Task");
-			task.setTextContent(mt.getName());
+			tasks.appendChild(task);
+			task.setAttribute("name", mt.getName());
 			task.setAttribute("uid", String.valueOf(mt.getUid()));
 			task.setAttribute("duration", String.valueOf(mt.getDuration()));
 			task.setAttribute("unit", mt.getUnit());
-			tasks.appendChild(task);
+			Element resources_needed = doc.createElement("ResourcesNeeded");
+			task.appendChild(resources_needed);
+			resources_needed.setAttribute("size", String.valueOf(mt.getResource().size()));
+			for (Integer res : mt.getResource()) {
+				Element resource_needed = doc.createElement("ResourceNeeded");
+				resources_needed.appendChild(resource_needed);
+				resource_needed.setAttribute("resource_uid", String.valueOf(res));
+			}
 		}
 		
 		Element dependencies = doc.createElement("Dependencies");
 		root.appendChild(dependencies);
+		dependencies.setAttribute("size", String.valueOf(rder.getDgraph().edgeSize()));
 		for (Edge edge : rder.getDgraph().edges()) {
 			int nid_src, nid_des;
 			nid_src = edge.source().nodeId();
@@ -95,9 +106,9 @@ public class XmlFileWriter {
 			mt_des = rder.getTaskByNid(nid_des);
 			
 			Element dependency = doc.createElement("Dependency");
-			dependency.setAttribute("source", String.valueOf(mt_src.getUid()));
-			dependency.setAttribute("target", String.valueOf(mt_des.getUid()));
 			dependencies.appendChild(dependency);
+			dependency.setAttribute("predecessor", String.valueOf(mt_src.getUid()));
+			dependency.setAttribute("successor", String.valueOf(mt_des.getUid()));
 		}
 	}
 	
