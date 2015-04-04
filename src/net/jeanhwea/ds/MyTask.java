@@ -1,9 +1,7 @@
 package net.jeanhwea.ds;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class MyTask {
 
@@ -15,7 +13,6 @@ public class MyTask {
 	private String      unit;   // unit of duration
 	private int         level;  // out line level
 	private String      outline;
-	private Set<Integer> resource;
 	
 	private MyTask		 parent;
 	private List<MyTask> children;
@@ -25,7 +22,6 @@ public class MyTask {
 	
 	
 	public MyTask() {
-		resource = new HashSet<Integer>();
 		parent = null;
 		children = new LinkedList<MyTask>();
 		predecessors = new LinkedList<MyTask>();
@@ -37,111 +33,81 @@ public class MyTask {
 		return nid;
 	}
 
-
 	public void setNid(int nid) {
 		this.nid = nid;
 	}
-
 
 	public int getUid() {
 		return uid;
 	}
 
-
 	public void setUid(int uid) {
 		this.uid = uid;
 	}
-
 
 	public String getName() {
 		return name;
 	}
 
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 	public double getDuration() {
 		return duration;
 	}
 
-
 	public void setDuration(double duration) {
 		this.duration = duration;
 	}
-
 
 	public String getUnit() {
 		return unit;
 	}
 
-
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
-
 
 	public int getLevel() {
 		return level;
 	}
 
-
 	public void setLevel(int level) {
 		this.level = level;
 	}
-
 
 	public String getOutline() {
 		return outline;
 	}
 
-
 	public void setOutline(String outline) {
 		this.outline = outline;
 	}
-
-
-	public Set<Integer> getResource() {
-		return resource;
-	}
-
-
-	public void setResource(Set<Integer> resource) {
-		this.resource = resource;
-	}
-
 
 	public MyTask getParent() {
 		return parent;
 	}
 
-
 	public void setParent(MyTask parent) {
 		this.parent = parent;
 	}
-
 
 	public List<MyTask> getChildren() {
 		return children;
 	}
 
-
 	public void setChildren(List<MyTask> children) {
 		this.children = children;
 	}
-
 
 	public List<MyTask> getPredecessors() {
 		return predecessors;
 	}
 
-
 	public void setPredecessors(List<MyTask> predecessors) {
 		this.predecessors = predecessors;
 	}
-
 
 	public List<MyTask> getSuccessors() {
 		return successors;

@@ -11,6 +11,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import net.jeanhwea.ds.MyAssignment;
 import net.jeanhwea.ds.MyResource;
 import net.jeanhwea.ds.MyTask;
 import net.jeanhwea.in.Reader;
@@ -59,6 +60,7 @@ public class XmlFileWriter {
 		size.setAttribute("ResourceSize", String.valueOf(rder.getResources().size()));
 		size.setAttribute("TaskSize", String.valueOf(rder.getDgraph().nodeSize()));
 		size.setAttribute("DependSize", String.valueOf(rder.getDgraph().edgeSize()));
+		size.setAttribute("AssignSize", String.valueOf(rder.getAssigns().size()));
 		
 		Element resources = doc.createElement("Resources");
 		root.appendChild(resources);
@@ -79,18 +81,10 @@ public class XmlFileWriter {
 			MyTask mt = rder.getTaskByNid(node.nodeId());
 			Element task = doc.createElement("Task");
 			tasks.appendChild(task);
-			task.setAttribute("name", mt.getName());
 			task.setAttribute("uid", String.valueOf(mt.getUid()));
 			task.setAttribute("duration", String.valueOf(mt.getDuration()));
 			task.setAttribute("unit", mt.getUnit());
-			Element resources_needed = doc.createElement("ResourcesNeeded");
-			task.appendChild(resources_needed);
-			resources_needed.setAttribute("size", String.valueOf(mt.getResource().size()));
-			for (Integer res : mt.getResource()) {
-				Element resource_needed = doc.createElement("ResourceNeeded");
-				resources_needed.appendChild(resource_needed);
-				resource_needed.setAttribute("resource_uid", String.valueOf(res));
-			}
+			task.setAttribute("name", mt.getName());
 		}
 		
 		Element dependencies = doc.createElement("Dependencies");
@@ -109,6 +103,17 @@ public class XmlFileWriter {
 			dependencies.appendChild(dependency);
 			dependency.setAttribute("predecessor", String.valueOf(mt_src.getUid()));
 			dependency.setAttribute("successor", String.valueOf(mt_des.getUid()));
+		}
+		
+		Element assigns = doc.createElement("Assignments");
+		root.appendChild(assigns);
+		assigns.setAttribute("size", String.valueOf(rder.getAssigns().size()));
+		for (MyAssignment as : rder.getAssigns()) {
+			Element assign = doc.createElement("Assignment");
+			assigns.appendChild(assign);
+			
+			assign.setAttribute("task_uid", String.valueOf(as.getTaskUid()));
+			assign.setAttribute("resource_uid", String.valueOf(as.getResourceUid()));
 		}
 	}
 	

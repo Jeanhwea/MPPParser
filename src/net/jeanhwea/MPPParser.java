@@ -84,7 +84,7 @@ public class MPPParser {
 		output = reader.getFilePrefix() + ".pdf";
 		
 		// do more removing file work and call graphviz to generate PDF file
-		cmd = String.format("dot -Tpdf %s -o %s", input, output);
+		cmd = String.format("dot -Tpdf \"%s\" -o \"%s\"", input, output);
 		executeSync(cmd);
 		
 		moveFileToPath(input, tmp_dir);

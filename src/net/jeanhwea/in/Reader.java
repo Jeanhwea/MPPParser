@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import net.jeanhwea.ds.MyAssignment;
 import net.jeanhwea.ds.MyResource;
 import net.jeanhwea.ds.MyTask;
 import net.jeanhwea.out.DotFileWriter;
@@ -36,6 +36,7 @@ public class Reader {
 	private BasicDigraph        dgraph;
 	private Vector<MyTask>      v_tasks;
 	private Vector<MyResource>  v_resources;
+	private Vector<MyAssignment> v_assigns;
 
 	private String file_prefix;
 	private String mpp_filename;
@@ -58,6 +59,7 @@ public class Reader {
 		dgraph = new BasicDigraph();
 		v_tasks = new Vector<MyTask>();
 		v_resources = new Vector<MyResource>();
+		v_assigns = new Vector<MyAssignment>();
 		m_uid2task = new HashMap<Integer, MyTask>();
 		m_nid2task = new HashMap<Integer, MyTask>();
 		m_uid2resource = new HashMap<Integer, MyResource>();
@@ -101,6 +103,14 @@ public class Reader {
 
 	public void setResources(Vector<MyResource> v_resources) {
 		this.v_resources = v_resources;
+	}
+
+	public Vector<MyAssignment> getAssigns() {
+		return v_assigns;
+	}
+
+	public void setAssigns(Vector<MyAssignment> v_assigns) {
+		this.v_assigns = v_assigns;
 	}
 
 	public String getFilePrefix() {
@@ -441,6 +451,7 @@ public class Reader {
 	}
 	
 	public void loadAssignments() {
+		
 		for (ResourceAssignment assign : project_file.getAllResourceAssignments()) {
 			Integer res_uid = assign.getResourceUniqueID();
 			MyResource resource = m_uid2resource.get(res_uid);
@@ -448,11 +459,18 @@ public class Reader {
 				continue;
 			Integer task_uid = assign.getTaskUniqueID();
 			MyTask my_task = m_uid2task.get(task_uid);
-			if (my_task != null) {
-				Set<Integer> resources_needed = my_task.getResource();
-				resources_needed.add(res_uid);
-			}
+			if (my_task == null) 
+				continue;
+			if (!my_task.isLeafTask())
+				continue;
+			
+			MyAssignment my_assign = new MyAssignment();
+			my_assign.setResourceUid(res_uid);
+			my_assign.setTaskUid(task_uid);
+			
+			v_assigns.add(my_assign);
 		}
+		
 	}
 	/**
 	 * Remove zero duration task before load tasks
