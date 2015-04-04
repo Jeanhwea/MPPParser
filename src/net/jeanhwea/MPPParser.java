@@ -1,6 +1,8 @@
 package net.jeanhwea;
 
 import java.awt.Component;
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFileChooser;
@@ -14,13 +16,35 @@ import net.sf.mpxj.MPXJException;
 public class MPPParser {
 	
 	private Reader reader;
+	private String tmp_dir = "./tmp/";
 
 	MPPParser() {
 		reader = new Reader();
 	}
 	
+	public boolean renameFile(String src, String des) {
+		boolean ret;
+		File src_file = new File(src);
+		File des_file = new File(des);
+		
+		if (src_file.exists()) {
+			ret = src_file.renameTo(des_file);
+		} else {
+			ret = false;
+		}
+		
+		return ret;
+	}
+	
+	public boolean moveFileToPath(String full_filename, String pathname) {
+		String filename;
+		String[] path_list = full_filename.split("\\\\");
+		filename = path_list[path_list.length-1];
+		return renameFile(full_filename, pathname+filename);
+	}
+	
 	public void executeSync(String cmd) {
-		System.out.println("> " + cmd);
+		System.out.println("cmd> " + cmd);
 		Runtime runtime = Runtime.getRuntime();
 		try {
 			Process process = runtime.exec(cmd);
@@ -58,23 +82,27 @@ public class MPPParser {
 		// do more removing file work and call graphviz to generate PDF file
 		cmd = String.format("dot -Tpdf %s -o %s", input, output);
 		executeSync(cmd);
-		cmd = String.format("cmd /c move %s d:\\tmp", input);
-		executeSync(cmd);
-		cmd = String.format("cmd /c move %s d:\\tmp", output);
-		executeSync(cmd);
-		String[] path_list = output.split("\\\\");
-		cmd = String.format("cmd /c start d:\\tmp\\%s", path_list[path_list.length-1]);
-		executeSync(cmd);
+		
+		moveFileToPath(input, tmp_dir);
+		moveFileToPath(output, tmp_dir);
+		
+		// display PDF file, if supported
+		if (Desktop.isDesktopSupported()) {
+			String[] path_list = output.split("\\\\");
+			File file = new File(tmp_dir + path_list[path_list.length-1]);
+			Desktop.getDesktop().open(file);
+		} else {
+			System.err.println("Cannot open pdf for no desktop support!");
+		}
 	}
 	
 	public void testXmlFile() throws ParserConfigurationException, TransformerException {
 		reader.genXmlFile();
 		
 		// remove file to temporary directory
-		String cmd, input;
-		input = reader.getXmlFilename();
-		cmd = String.format("cmd /c move %s d:\\tmp", input);
-		executeSync(cmd);
+		String output;
+		output = reader.getXmlFilename();
+		moveFileToPath(output, tmp_dir);
 	}
 
 	public static void main(String[] args) throws MPXJException, IOException, InterruptedException, ParserConfigurationException, TransformerException {
@@ -84,8 +112,7 @@ public class MPPParser {
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Microsoft Project File (*.mpp)", "mpp");
 		chooser.setFileFilter(filter);
 		
-		Component parent = null;
-		int returnVal = chooser.showOpenDialog(parent);
+		int returnVal = chooser.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String full_filename = chooser.getSelectedFile().getAbsolutePath();
 			System.out.println("Try to parse " + full_filename);
@@ -93,7 +120,7 @@ public class MPPParser {
 			parser.testXmlFile();
 			parser.testDotFile();
 		} else {
-			System.err.println("Ha, ha, You canceled!!!");
+			System.err.println("Canceled ???");
 		}
 	}
 
