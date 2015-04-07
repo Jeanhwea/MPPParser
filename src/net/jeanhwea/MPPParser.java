@@ -3,6 +3,7 @@ package net.jeanhwea;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -13,12 +14,28 @@ import net.jeanhwea.in.Reader;
 import net.sf.mpxj.MPXJException;
 
 public class MPPParser {
-	
+
+
 	private Reader reader;
 	private String tmp_dir = "tmp" + File.separatorChar;
 
 	MPPParser() {
 		reader = new Reader();
+		makeTempDir();
+	}
+	
+	private boolean makeTempDir() {
+		boolean ret = false;
+		File path = new File(tmp_dir);
+		if (!path.exists()) {
+			ret = path.mkdir();
+		}
+		return ret;
+	}
+	
+	private boolean checkMppDir() {
+		File path = new File("mpps");
+		return path.exists();
 	}
 	
 	public boolean renameFile(String src, String des) {
@@ -63,6 +80,7 @@ public class MPPParser {
 	}
 	
 	public void parse(String filename) throws MPXJException {
+		System.out.println("Try to parse " + filename);
 		reader.readFile(filename);
 		reader.loadTasks();
 		reader.loadResources();
@@ -108,24 +126,55 @@ public class MPPParser {
 		output = reader.getXmlFilename();
 		moveFileToPath(output, tmp_dir);
 	}
-
-	public static void main(String[] args) throws MPXJException, IOException, InterruptedException, ParserConfigurationException, TransformerException {
-		MPPParser parser = new MPPParser();
-		JFileChooser chooser = new JFileChooser("mpps");
-//		JFileChooser chooser = new JFileChooser(".");
+	
+	public void startWithGUI() throws MPXJException, ParserConfigurationException, TransformerException, IOException, InterruptedException {
+		JFileChooser chooser = null;
+		if (checkMppDir()) {
+			chooser = new JFileChooser("mpps");
+		} else {
+			chooser = new JFileChooser(".");
+		}
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Microsoft Project File (*.mpp)", "mpp");
 		chooser.setFileFilter(filter);
 		
 		int returnVal = chooser.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String full_filename = chooser.getSelectedFile().getAbsolutePath();
-			System.out.println("Try to parse " + full_filename);
-			parser.parse(full_filename);
-			parser.testXmlFile();
-			parser.testDotFile();
+			parse(full_filename);
+			testXmlFile();
+			testDotFile();
 		} else {
 			System.err.println("Canceled ???");
 		}
+	}
+	
+	public boolean startWithCMD(String full_filename) throws MPXJException, ParserConfigurationException, TransformerException {
+		if (full_filename == null) {
+			System.err.println("no file name given!!!");
+			return false;
+		}
+		File new_file = new File(full_filename);
+		if (!new_file.exists()) {
+			System.err.println("this file does not exists!!!");
+			return false;
+		}
+		
+		parse(full_filename);
+		testXmlFile();
+		return true;
+	}
+
+	public static void main(String[] args) throws MPXJException, IOException, InterruptedException, ParserConfigurationException, TransformerException {
+		MPPParser parser = new MPPParser();
+		
+		String full_filename;
+		if (args.length > 0) {
+			full_filename = args[0];
+			parser.startWithCMD(full_filename);
+		} else {
+			parser.startWithGUI();
+		}
+		
 	}
 
 }
