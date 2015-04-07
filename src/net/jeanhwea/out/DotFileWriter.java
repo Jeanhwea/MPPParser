@@ -63,8 +63,8 @@ public class DotFileWriter {
 		for (Node task : graph.nodes()) {
 			MyTask my_task;
 			my_task = rder.getTaskByNid(task.nodeId());
-//			line = String.format("T%d[label=\"%s_%.1f%s\"];", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
-			line = String.format("T%d[label=\"T%s_%.1f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
+//			line = String.format("T%d[label=\"%s\\n%.1f%s\"];", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
+			line = String.format("T%d[label=\"T%s\\n%.1f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
 			indentPrint(line);
 		}
 		
