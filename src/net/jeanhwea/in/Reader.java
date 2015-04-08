@@ -158,10 +158,10 @@ public class Reader {
 			my_task.setUid(t.getUniqueID());
 			
 			my_task.setName(t.getName());
-			Duration work = t.getWork();
-			if (work != null) {
-				my_task.setDuration(work.getDuration());
-				my_task.setUnit(work.getUnits().getName());
+			Duration dura = getDuration(t);
+			if (dura != null) {
+				my_task.setDuration(dura.getDuration());
+				my_task.setUnit(dura.getUnits().getName());
 			} else {
 				my_task.setDuration(0);
 				my_task.setUnit("NA");
@@ -481,8 +481,8 @@ public class Reader {
 		List<Task> l_tasks_to_remove = new LinkedList<Task>();
 		
 		for (Task t : project_file.getAllTasks()) {
-			Duration work = t.getWork();
-			if (work == null || work.getDuration() == 0) {
+			Duration dura = getDuration(t);
+			if (dura == null || dura.getDuration() == 0) {
 			  l_tasks_to_remove.add(t);
 			}
 		}
@@ -567,6 +567,19 @@ public class Reader {
 		
 		//step 3: remove the task
 		project_file.removeTask(task_to_remove);
+	}
+	
+	private Duration getDuration(Task task) {
+		/**
+		 * Difference between those functions
+		 * 
+		 * getWork returns the duration when resource is allocated
+		 * getDuration returns the duration that is added manually 
+		 * 
+		 */
+		
+//		return task.getWork();
+		return task.getDuration();
 	}
 
 	public void printEdges() {
