@@ -1,23 +1,23 @@
 package net.jeanhwea.ds;
 
 public class MyAssignment {
-	int task_uid;
-	int resource_uid;
+	MyTask task;
+	MyResource resource;
 	
-	public int getTaskUid() {
-		return task_uid;
+	public MyTask getTask() {
+		return task;
 	}
 	
-	public void setTaskUid(int task_uid) {
-		this.task_uid = task_uid;
+	public void setTask(MyTask task) {
+		this.task = task;
 	}
 	
-	public int getResourceUid() {
-		return resource_uid;
+	public MyResource getResource() {
+		return resource;
 	}
 	
-	public void setResourceUid(int resource_uid) {
-		this.resource_uid = resource_uid;
+	public void setResource(MyResource resource) {
+		this.resource = resource;
 	}
 	
 }

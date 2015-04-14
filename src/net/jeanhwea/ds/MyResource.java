@@ -1,12 +1,23 @@
 package net.jeanhwea.ds;
 
 public class MyResource {
+	
+	private int		id;
 	private String 	name;
 	private int		uid;
 	private long	cost;
 	private long	max_unit;
 	
 	public MyResource() {
+		id = -1;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getName() {

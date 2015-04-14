@@ -465,8 +465,10 @@ public class Reader {
 				continue;
 			
 			MyAssignment my_assign = new MyAssignment();
-			my_assign.setResourceUid(res_uid);
-			my_assign.setTaskUid(task_uid);
+			MyTask t = m_uid2task.get(task_uid);
+			MyResource r = m_uid2resource.get(res_uid);
+			my_assign.setTask(t);
+			my_assign.setResource(r);
 			
 			v_assigns.add(my_assign);
 		}
@@ -580,6 +582,28 @@ public class Reader {
 		
 //		return task.getWork();
 		return task.getDuration();
+	}
+	
+	public void fixSeqId() {
+		fixSeqTaskId();
+		fixSeqResourceId();
+	}
+	
+	private void fixSeqTaskId() {
+		int seq_id = 1;
+		for (Node n : dgraph.nodes()) {
+			MyTask my_task = m_nid2task.get(n.nodeId());
+			my_task.setId(seq_id);
+			seq_id++;
+		}
+	}
+	
+	private void fixSeqResourceId() {
+		int seq_id = 1;
+		for (MyResource r : v_resources) {
+			r.setId(seq_id);
+			seq_id++;
+		}
 	}
 
 	public void printEdges() {

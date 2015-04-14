@@ -63,13 +63,14 @@ public class DotFileWriter {
 		for (Node task : graph.nodes()) {
 			MyTask my_task;
 			my_task = rder.getTaskByNid(task.nodeId());
-//			line = String.format("T%d[label=\"%s\\n%.1f%s\"];", task.nodeId(), my_task.getName(), my_task.getDuration(), my_task.getUnit());
-			line = String.format("T%d[label=\"T%s\\n%.1f%s\"];", task.nodeId(), my_task.getNid(), my_task.getDuration(), my_task.getUnit());
+			line = String.format("T%d[label=\"T%s\\n%.1f%s\"];", my_task.getId(), my_task.getId(), my_task.getDuration(), my_task.getUnit());
 			indentPrint(line);
 		}
 		
 		for (Edge rela : graph.edges()) {
-			line = String.format("T%d -> T%d;", rela.source().nodeId(), rela.target().nodeId());
+			MyTask src_task = rder.getTaskByNid(rela.source().nodeId());
+			MyTask des_task = rder.getTaskByNid(rela.target().nodeId());
+			line = String.format("T%d -> T%d;", src_task.getId(), des_task.getId());
 			indentPrint(line);
 		}
 		
@@ -86,8 +87,7 @@ public class DotFileWriter {
 		
 		Vector<MyResource> resources = rder.getResources();
 		for (MyResource resource : resources) {
-			line = String.format("R%d[label=\"%s\"];", resource.getUid(), resource.getName());
-//			line = String.format("R%d[label=\"R%s\"];", resource.getUid(), resource.getUid());
+			line = String.format("R%d[label=\"R%s\\n%s\"];", resource.getId(), resource.getId(), resource.getName());
 			indentPrint(line);
 		}
 		
@@ -95,10 +95,10 @@ public class DotFileWriter {
 		 * R1 -> R2 -> R3 -> R4 -> R5[style=invis];
 		 */
 		if (!resources.isEmpty()) {
-			line ="R" + resources.get(0).getUid();
+			line ="R" + resources.get(0).getId();
 			for (int i = 1; i < resources.size(); i++) {
 				MyResource resource = resources.get(i);
-				line += " -> " + "R" + resource.getUid();
+				line += " -> " + "R" + resource.getId();
 			}
 			line += "[style=invis];";
 			indentPrint(line);

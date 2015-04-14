@@ -68,6 +68,7 @@ public class XmlFileWriter {
 		for (MyResource mr : rder.getResources()) {
 			Element resource = doc.createElement("Resource");
 			resources.appendChild(resource);
+			resource.setAttribute("id", String.valueOf(mr.getId()));
 			resource.setAttribute("uid", String.valueOf(mr.getUid()));
 			resource.setAttribute("cost", String.valueOf(mr.getCost()));
 			resource.setAttribute("max_unit", String.valueOf(mr.getMaxUnit()));
@@ -81,6 +82,7 @@ public class XmlFileWriter {
 			MyTask mt = rder.getTaskByNid(node.nodeId());
 			Element task = doc.createElement("Task");
 			tasks.appendChild(task);
+			task.setAttribute("id", String.valueOf(mt.getId()));
 			task.setAttribute("uid", String.valueOf(mt.getUid()));
 			task.setAttribute("duration", String.valueOf(mt.getDuration()));
 			task.setAttribute("unit", mt.getUnit());
@@ -101,8 +103,8 @@ public class XmlFileWriter {
 			
 			Element dependency = doc.createElement("Dependency");
 			dependencies.appendChild(dependency);
-			dependency.setAttribute("predecessor", String.valueOf(mt_src.getUid()));
-			dependency.setAttribute("successor", String.valueOf(mt_des.getUid()));
+			dependency.setAttribute("predecessor", String.valueOf(mt_src.getId()));
+			dependency.setAttribute("successor", String.valueOf(mt_des.getId()));
 		}
 		
 		Element assigns = doc.createElement("Assignments");
@@ -112,8 +114,8 @@ public class XmlFileWriter {
 			Element assign = doc.createElement("Assignment");
 			assigns.appendChild(assign);
 			
-			assign.setAttribute("task_uid", String.valueOf(as.getTaskUid()));
-			assign.setAttribute("resource_uid", String.valueOf(as.getResourceUid()));
+			assign.setAttribute("task", String.valueOf(as.getTask().getId()));
+			assign.setAttribute("resource", String.valueOf(as.getResource().getId()));
 		}
 	}
 	

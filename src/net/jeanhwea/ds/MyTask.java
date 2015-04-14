@@ -5,7 +5,7 @@ import java.util.List;
 
 public class MyTask {
 
-
+	private int         id; // sequence id
 	private int         nid;    // node id
 	private int         uid;
 	private String      name;
@@ -22,12 +22,20 @@ public class MyTask {
 	
 	
 	public MyTask() {
+		id = -1;
 		parent = null;
 		children = new LinkedList<MyTask>();
 		predecessors = new LinkedList<MyTask>();
 		successors = new LinkedList<MyTask>();
 	}
 
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public int getNid() {
 		return nid;

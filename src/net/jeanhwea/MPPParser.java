@@ -89,6 +89,7 @@ public class MPPParser {
 		reader.buildGraphWithLeafTasks();
 //		reader.printNodes();
 //		reader.printEdges();
+		reader.fixSeqId();
 		reader.printGraphInfo();
 	}
 	
