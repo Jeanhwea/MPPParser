@@ -94,13 +94,14 @@ public class XmlFileWriter {
 		ByteNodeMatrix closure = Transitivity.acyclicClosure(rder.getDgraph());
 		for (Node u : rder.getDgraph().nodes()) {
 			for (Node v : rder.getDgraph().nodes()) {
+				if (u == v) continue;
 				byte canReach = closure.get(u, v);
 				// a matrix whose entries (i,j) are 1 if i can reach j in the graph dg, and 0 otherwise.
 				if (canReach == 1) {
 					dep_size ++;
 					int nid_src, nid_des;
 					nid_src = u.nodeId();
-					nid_des = v.nodeId();			
+					nid_des = v.nodeId();
 					MyTask mt_src, mt_des;
 					mt_src = rder.getTaskByNid(nid_src);
 					mt_des = rder.getTaskByNid(nid_des);
