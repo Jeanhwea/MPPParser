@@ -66,7 +66,19 @@ public class DotFileWriter {
 			line = String.format("T%d[label=\"T%s\\n%.1f%s\"];", my_task.getId(), my_task.getId(), my_task.getDuration(), my_task.getUnit());
 			indentPrint(line);
 		}
-		
+//		ByteNodeMatrix closure = Transitivity.acyclicClosure(rder.getDgraph());
+//		for (Node u : rder.getDgraph().nodes()) {
+//			for (Node v : rder.getDgraph().nodes()) {
+//				byte canReach = closure.get(u, v);
+//				// a matrix whose entries (i,j) are 1 if i can reach j in the graph dg, and 0 otherwise.
+//				if (canReach == 1) {
+//					MyTask src_task = rder.getTaskByNid(u.nodeId());
+//					MyTask des_task = rder.getTaskByNid(v.nodeId());
+//					line = String.format("T%d -> T%d;", src_task.getId(), des_task.getId());
+//					indentPrint(line);
+//				}
+//			}
+//		}
 		for (Edge rela : graph.edges()) {
 			MyTask src_task = rder.getTaskByNid(rela.source().nodeId());
 			MyTask des_task = rder.getTaskByNid(rela.target().nodeId());

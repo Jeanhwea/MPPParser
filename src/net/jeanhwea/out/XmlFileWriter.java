@@ -15,8 +15,9 @@ import net.jeanhwea.ds.MyAssignment;
 import net.jeanhwea.ds.MyResource;
 import net.jeanhwea.ds.MyTask;
 import net.jeanhwea.in.Reader;
-import net.stixar.graph.Edge;
 import net.stixar.graph.Node;
+import net.stixar.graph.attr.ByteNodeMatrix;
+import net.stixar.graph.conn.Transitivity;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,8 +60,6 @@ public class XmlFileWriter {
 		root.appendChild(size);
 		size.setAttribute("ResourceSize", String.valueOf(rder.getResources().size()));
 		size.setAttribute("TaskSize", String.valueOf(rder.getDgraph().nodeSize()));
-		size.setAttribute("DependSize", String.valueOf(rder.getDgraph().edgeSize()));
-		size.setAttribute("AssignSize", String.valueOf(rder.getAssigns().size()));
 		
 		Element resources = doc.createElement("Resources");
 		root.appendChild(resources);
@@ -91,22 +90,45 @@ public class XmlFileWriter {
 		
 		Element dependencies = doc.createElement("Dependencies");
 		root.appendChild(dependencies);
-		dependencies.setAttribute("size", String.valueOf(rder.getDgraph().edgeSize()));
-		for (Edge edge : rder.getDgraph().edges()) {
-			int nid_src, nid_des;
-			nid_src = edge.source().nodeId();
-			nid_des = edge.target().nodeId();
-			
-			MyTask mt_src, mt_des;
-			mt_src = rder.getTaskByNid(nid_src);
-			mt_des = rder.getTaskByNid(nid_des);
-			
-			Element dependency = doc.createElement("Dependency");
-			dependencies.appendChild(dependency);
-			dependency.setAttribute("predecessor", String.valueOf(mt_src.getId()));
-			dependency.setAttribute("successor", String.valueOf(mt_des.getId()));
+		int dep_size = 0;
+		ByteNodeMatrix closure = Transitivity.acyclicClosure(rder.getDgraph());
+		for (Node u : rder.getDgraph().nodes()) {
+			for (Node v : rder.getDgraph().nodes()) {
+				byte canReach = closure.get(u, v);
+				// a matrix whose entries (i,j) are 1 if i can reach j in the graph dg, and 0 otherwise.
+				if (canReach == 1) {
+					dep_size ++;
+					int nid_src, nid_des;
+					nid_src = u.nodeId();
+					nid_des = v.nodeId();			
+					MyTask mt_src, mt_des;
+					mt_src = rder.getTaskByNid(nid_src);
+					mt_des = rder.getTaskByNid(nid_des);
+					
+					Element dependency = doc.createElement("Dependency");
+					dependencies.appendChild(dependency);
+					dependency.setAttribute("predecessor", String.valueOf(mt_src.getId()));
+					dependency.setAttribute("successor", String.valueOf(mt_des.getId()));
+				}
+			}
 		}
+		dependencies.setAttribute("size", String.valueOf(dep_size));
 		
+//		for (Edge edge : rder.getDgraph().edges()) {
+//		int nid_src, nid_des;
+//		nid_src = edge.source().nodeId();
+//		nid_des = edge.target().nodeId();
+//		
+//		MyTask mt_src, mt_des;
+//		mt_src = rder.getTaskByNid(nid_src);
+//		mt_des = rder.getTaskByNid(nid_des);
+//		
+//		Element dependency = doc.createElement("Dependency");
+//		dependencies.appendChild(dependency);
+//		dependency.setAttribute("predecessor", String.valueOf(mt_src.getId()));
+//		dependency.setAttribute("successor", String.valueOf(mt_des.getId()));
+//	}
+	
 		Element assigns = doc.createElement("Assignments");
 		root.appendChild(assigns);
 		assigns.setAttribute("size", String.valueOf(rder.getAssigns().size()));

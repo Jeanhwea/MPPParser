@@ -29,6 +29,8 @@ import net.stixar.graph.BasicNode;
 import net.stixar.graph.Edge;
 import net.stixar.graph.Node;
 import net.stixar.graph.conn.Transitivity;
+import net.stixar.graph.order.TopSorter;
+import net.stixar.util.CList;
 
 public class Reader {
 	private ProjectFile         project_file;
@@ -428,7 +430,7 @@ public class Reader {
 			if (r.getName() != null) {
 				my_resource.setName(r.getName());
 			} else {
-				my_resource.setName("NA");
+				my_resource.setName("null");
 			}
 			Number cost = r.getCost();
 			if (cost != null) {
@@ -591,7 +593,10 @@ public class Reader {
 	
 	private void fixSeqTaskId() {
 		int seq_id = 1;
-		for (Node n : dgraph.nodes()) {
+		TopSorter ts = new TopSorter(dgraph);
+		ts.run();
+		CList<Node> nlist = ts.getSort();
+		for (Node n : nlist) {
 			MyTask my_task = m_nid2task.get(n.nodeId());
 			my_task.setId(seq_id);
 			seq_id++;
