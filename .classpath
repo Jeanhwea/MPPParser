@@ -2,10 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="libs/mpxj-4.7.5.jar" sourcepath="libs/mpxj-4.7.5"/>
 	<classpathentry kind="lib" path="libs/poi-3.11-20141221.jar"/>
 	<classpathentry kind="lib" path="libs/rtfparserkit-1.2.0.jar"/>
 	<classpathentry kind="lib" path="libs/stixar-graphlib-988-beta.jar"/>
 	<classpathentry kind="lib" path="libs/stixar-util-950-beta.jar"/>
+	<classpathentry kind="lib" path="libs/mpxj-5.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
